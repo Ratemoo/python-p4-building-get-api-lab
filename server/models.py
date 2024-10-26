@@ -2,15 +2,18 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
 from sqlalchemy_serializer import SerializerMixin
 
+# Naming convention for constraints to avoid naming collisions
 metadata = MetaData(naming_convention={
     "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
 })
 
 db = SQLAlchemy(metadata=metadata)
 
+# Bakery model
 class Bakery(db.Model, SerializerMixin):
     __tablename__ = 'bakeries'
-
+    __table_args__ = {'extend_existing': True}  # Ensure no conflict with existing table
+    
     serialize_rules = ('-baked_goods.bakery',)
 
     id = db.Column(db.Integer, primary_key=True)
@@ -23,8 +26,10 @@ class Bakery(db.Model, SerializerMixin):
     def __repr__(self):
         return f'<Bakery {self.name}>'
 
+# BakedGood model
 class BakedGood(db.Model, SerializerMixin):
     __tablename__ = 'baked_goods'
+    __table_args__ = {'extend_existing': True}  # Ensure no conflict with existing table
 
     serialize_rules = ('-bakery.baked_goods',)
 
